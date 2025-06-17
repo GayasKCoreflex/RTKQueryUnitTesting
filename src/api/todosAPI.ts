@@ -1,15 +1,17 @@
 export const fetchTodosFromAPI = async () => {
   try {
-    const response = await fetch('https://jsonplaceholder.typicode.com/todos?_limit=4');
+    const response = await fetch('http://jsonplaceholder.typicode.com/todos?_limit=4');
+
     if (!response.ok) {
+      console.error("Response NOT ok:", response.status, response.statusText);
       throw new Error(`Failed to fetch todos: ${response.status} ${response.statusText}`);
     }
     const data = await response.json();
-  
+
     return data.map((todo: any) => ({
       id: todo.id.toString(),
       text: todo.title,
-      completed: todo.completed
+      completed: todo.completed,
     }));
 
   } catch (error) {
