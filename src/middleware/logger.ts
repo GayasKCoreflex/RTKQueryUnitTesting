@@ -1,33 +1,31 @@
-import { Middleware } from '@reduxjs/toolkit'
-import { Alert } from 'react-native'
+import { Middleware } from '@reduxjs/toolkit';
+import { Alert } from 'react-native';
 
-const blockedWords = ['badword', 'offensive', 'dummy']
+const blockedWords = ['badword', 'offensive', 'dummy'];
 
 //Middleware to log actions & filter bad todos
 const logger: Middleware = store => next => (action: any) => {
 
-  console.log("before Next-->", action);
-  
   // check for Bad todos
   if (action.type === 'todos/addTodo') {
-    const text: string = action.payload.toLowerCase()
+    const text: string = action.payload.toLowerCase();
 
-    const notAllowed = blockedWords.some(word => text.includes(word))
+    const notAllowed = blockedWords.some(word => text.includes(word));
 
     if (notAllowed) {
-      Alert.alert('Invalid Todo', 'Contains inappropriate language.')
-      return 
+      Alert.alert('Invalid Todo', 'Contains inappropriate language.');
+      return;
     }
   }
 
   //If action is allowed, Forwards the valid action to the reducer.
-  const result = next(action)
+  const result = next(action);
 
- // Log updated state after the reducer processes the action
-  console.log('Next state:', store.getState())
-  console.log('Result:', result)
+  // Log updated state after the reducer processes the action
+  console.log('Next state:', store.getState());
+  console.log('Result:', result);
 
-  return result
+  return result;
 }
 
-export default logger
+export default logger;

@@ -45,7 +45,7 @@ const TodoList = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Todo List</Text>
+      <Text style={styles.title} testID="todo-title">Todo List</Text>
 
       <View style={styles.inputRow}>
         <TodoInput
@@ -57,9 +57,9 @@ const TodoList = () => {
       </View>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#007AFF" />
+        <ActivityIndicator size="large" color="#007AFF" testID="loading-indicator" />
       ) : error ? (
-        <Text style={styles.errorText}>{error}</Text>
+        <Text style={styles.errorText} testID="error-message">{error}</Text>
       ) : (
         <FlatList
           data={todos}
@@ -72,24 +72,33 @@ const TodoList = () => {
                   style={[
                     styles.todoText,
                     item.completed && styles.completedText,
-                  ]}>
+                  ]}
+                  testID={`todo-text-${item.id}`}
+                >
                   {item.text}
                 </Text>
               </View>
 
               <View style={styles.quantityContainer}>
                 <TouchableOpacity
-                  onPress={() => dispatch(decrementQuantity(item.id))}>
+                  onPress={() => dispatch(decrementQuantity(item.id))}
+                  testID={`decrement-${item.id}`}
+                >
                   <Text style={styles.quantityButton}>-</Text>
                 </TouchableOpacity>
                 <Text style={styles.quantityText}>{item.quantity}</Text>
                 <TouchableOpacity
-                  onPress={() => dispatch(incrementQuantity(item.id))}>
+                  onPress={() => dispatch(incrementQuantity(item.id))}
+                  testID={`increment-${item.id}`}
+                >
                   <Text style={styles.quantityButton}>+</Text>
                 </TouchableOpacity>
               </View>
 
-              <TouchableOpacity onPress={() => dispatch(deleteTodo(item.id))}>
+              <TouchableOpacity
+                onPress={() => dispatch(deleteTodo(item.id))}
+                testID={`delete-${item.id}`}
+              >
                 <Text style={styles.deleteButton}>x</Text>
               </TouchableOpacity>
             </View>
@@ -99,8 +108,10 @@ const TodoList = () => {
 
       <TouchableOpacity
         onPress={() => navigation.navigate('NewScreen')}
-        style={styles.navigateButton}>
-        <Text style={styles.navigateButtonText}>Go to Next Screen</Text>
+        style={styles.navigateButton}
+        testID="navigate-button"
+      >
+        <Text style={styles.navigateButtonText} >Go to Next Screen</Text>
       </TouchableOpacity>
     </View>
   );

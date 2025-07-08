@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit'
-import { fetchTodosFromAPI } from '../../api/todosAPI'
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import { fetchTodosFromAPI } from '../../api/todosAPI';
 
 export interface Todo {
   id: string
@@ -17,16 +17,16 @@ interface TodosState {
 const initialState: TodosState = {
   list: [],
   loading: false,
-  error: null
-}
+  error: null,
+};
 
 
 // Async thunk to fetch todos from an external API
-export const fetchTodos = createAsyncThunk('todos/fetchTodos', async () => {
-  const result = await fetchTodosFromAPI()
+export const fetchTodos = createAsyncThunk<Todo[]>('todos/fetchTodos', async () => {
+  const result = await fetchTodosFromAPI();
   // console.log("API result:", result)
-  return result
-})
+  return result;
+});
 
 
 //createAsyncThunk lifecycle
@@ -49,7 +49,7 @@ export const fetchTodos = createAsyncThunk('todos/fetchTodos', async () => {
 
 // Slice
 const todosSlice = createSlice({
-  name: 'todos',// Name of the slice  
+  name: 'todos',// Name of the slice
   initialState,
 
   // reducers is used to handle synchronous actions
@@ -60,68 +60,68 @@ const todosSlice = createSlice({
         id: Date.now().toString(),
         text: action.payload,
         completed: false,
-        quantity: 0
-      })
+        quantity: 0,
+      });
     },
 
     //To mark a todo complete in list
     toggleTodo(state, action: PayloadAction<string>) {
-      const todo = state.list.find(t => t.id === action.payload)
+      const todo = state.list.find(t => t.id === action.payload);
       if (todo) {
-        todo.completed = !todo.completed
+        todo.completed = !todo.completed;
       }
     },
 
     //To delete a todo in list
     deleteTodo(state, action: PayloadAction<string>) {
-      state.list = state.list.filter(t => t.id !== action.payload)
+      state.list = state.list.filter(t => t.id !== action.payload);
     },
 
     // Increase the quantity of a todo item like adding to cart
     incrementQuantity(state, action: PayloadAction<string>) {
-      const todo = state.list.find(t => t.id === action.payload)
+      const todo = state.list.find(t => t.id === action.payload);
       if (todo) {
-        todo.quantity += 1
+        todo.quantity += 1;
       }
     },
 
     // Decrease the quantity of a todo item, but don't go below 0
     decrementQuantity(state, action: PayloadAction<string>) {
-      const todo = state.list.find(t => t.id === action.payload)
+      const todo = state.list.find(t => t.id === action.payload);
       if (todo && todo.quantity > 0) {
-        todo.quantity -= 1
+        todo.quantity -= 1;
       }
-    }
+    },
 
   },
 
-  //when using asynchronous actions like createAsyncThunk, we need extraReducers to handle the different states of those actions: 
+  //when using asynchronous actions like createAsyncThunk, we need extraReducers to handle the different states of those actions
   extraReducers: (builder) => {
     //When the request is pending (just started)
     builder.addCase(fetchTodos.pending, (state) => {
-      state.loading = true
-      state.error = null
-    })
+      state.loading = true;
+      state.error = null;
+    });
 
     //When the request is fulfilled (succeeded)
     builder.addCase(fetchTodos.fulfilled, (state, action) => {
       state.list = action.payload.map((todo: Omit<Todo, 'quantity'>) => ({
         ...todo,
         quantity: 0,
-      }))
-      state.loading = false
-      state.error = null
-    })
+      }));
+      state.loading = false;
+      state.error = null;
+    });
 
     //When the request is rejected (failed)
     builder.addCase(fetchTodos.rejected, (state, action) => {
-      state.loading = false
-      state.error = action.error.message || 'Something went wrong'
-    })
-  }
-})
+      state.loading = false;
+      state.error = action.error.message || 'Something went wrong';
+    });
+  },
+});
 
 
 // Action creators are generated for each case reducer function
-export const { addTodo, toggleTodo, deleteTodo, incrementQuantity, decrementQuantity } = todosSlice.actions
-export default todosSlice.reducer
+export const { addTodo, toggleTodo, deleteTodo, incrementQuantity, decrementQuantity } = todosSlice.actions;
+export default todosSlice.reducer;

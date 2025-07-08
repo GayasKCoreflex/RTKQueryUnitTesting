@@ -3,7 +3,7 @@ export const fetchTodosFromAPI = async () => {
     const response = await fetch('http://jsonplaceholder.typicode.com/todos?_limit=4');
 
     if (!response.ok) {
-      console.error("Response NOT ok:", response.status, response.statusText);
+      console.error('Response not ok:', response.status, response.statusText);
       throw new Error(`Failed to fetch todos: ${response.status} ${response.statusText}`);
     }
     const data = await response.json();

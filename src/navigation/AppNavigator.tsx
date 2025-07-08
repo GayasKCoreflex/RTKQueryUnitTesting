@@ -1,11 +1,12 @@
-import { NavigationContainer } from '@react-navigation/native'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
-import { RootStackParamList } from '../types/todo'
-import Header from '../components/HeaderComponent'
-import TodoList from '../screens/TodoList'
-import NewScreen from '../screens/NewScreen'
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../types/todo';
+import Header from '../components/HeaderComponent';
+import TodoList from '../screens/TodoList';
+import NewScreen from '../screens/NewScreen';
 
-const Stack = createNativeStackNavigator<RootStackParamList>()
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
     return (
@@ -18,7 +19,7 @@ const AppNavigator = () => {
                 </Stack.Navigator>
             </NavigationContainer>
         </>
-    )
-}
+    );
+};
 
-export default AppNavigator
+export default AppNavigator;
