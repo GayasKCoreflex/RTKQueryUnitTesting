@@ -28,7 +28,7 @@ const Header: React.FC<HeaderProps> = ({ title, onCartPress }) => {
         <Text style={styles.cartIcon}>🛒</Text>
 
         {cartCount > 0 && (
-          <View style={styles.badge}>
+          <View style={styles.badge} testID="cart-count-badge">
             <Text style={styles.badgeText}>
               {cartCount}
             </Text>

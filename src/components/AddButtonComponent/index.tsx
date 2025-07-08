@@ -8,7 +8,7 @@ interface AddButtonProps {
 
 const AddButton: React.FC<AddButtonProps> = ({ onPress, title = 'Add' }) => {
   return (
-    <TouchableOpacity onPress={onPress} style={styles.button}>
+    <TouchableOpacity onPress={onPress} style={styles.button} testID="add-button">
       <Text style={styles.text}>{title}</Text>
     </TouchableOpacity>
   )
