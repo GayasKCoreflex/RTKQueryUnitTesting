@@ -8,5 +8,6 @@
 - Mocking of useDispatch from Redux.
 - Mocking of navigation.
 - FlatList rendering with mocked todo items.
+- API call mocking (Axios)
 
 
