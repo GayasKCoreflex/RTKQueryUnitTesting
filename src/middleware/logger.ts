@@ -1,7 +1,7 @@
 import { Middleware } from '@reduxjs/toolkit';
 import { Alert } from 'react-native';
 
-const blockedWords = ['badword', 'offensive', 'dummy'];
+const blockedWords = ['bad', 'offensive', 'dummy'];
 
 //Middleware to log actions & filter bad todos
 const logger: Middleware = store => next => (action: any) => {
@@ -26,6 +26,6 @@ const logger: Middleware = store => next => (action: any) => {
   console.log('Result:', result);
 
   return result;
-}
+};
 
 export default logger;

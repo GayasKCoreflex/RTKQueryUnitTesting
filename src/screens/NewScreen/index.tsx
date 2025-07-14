@@ -1,15 +1,16 @@
-import { View, Text, Button, FlatList, TouchableOpacity } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
-import { RootState } from '../../store/store'
-import { decrementQuantity, incrementQuantity } from '../../features/todos/todosSlice'
-import styles from './styles'
+import React from 'react';
+import { View, Text, Button, FlatList, TouchableOpacity } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
+import { decrementQuantity, incrementQuantity } from '../../features/todos/todosSlice';
+import styles from './styles';
 
 const NewScreen = ({ navigation }: any) => {
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const cartItems = useSelector((state: RootState) =>
     state.todos.list.filter(todo => todo.quantity > 0)
-  )
+  );
 
   const handleDecrement = (id: string) => dispatch(decrementQuantity(id));
   const handleIncrement = (id: string) => dispatch(incrementQuantity(id));
@@ -28,7 +29,7 @@ const NewScreen = ({ navigation }: any) => {
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <View style={styles.itemRow}>
-                <Text style={styles.itemText}>{item.text}</Text>
+                <Text style={styles.itemText}>{item.title}</Text>
                 <View style={styles.quantityControls}>
                   <TouchableOpacity onPress={() => handleDecrement(item.id)}>
                     <Text style={styles.quantityBtn}>-</Text>
@@ -46,8 +47,8 @@ const NewScreen = ({ navigation }: any) => {
 
       <Button title="Go Back" onPress={handleGoBack} />
     </View>
-  )
-}
+  );
+};
 
-export default NewScreen
+export default NewScreen;
 

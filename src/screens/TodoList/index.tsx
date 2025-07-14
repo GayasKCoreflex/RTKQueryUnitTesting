@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,28 +13,47 @@ import {
   addTodo,
   decrementQuantity,
   deleteTodo,
-  fetchTodos,
   incrementQuantity,
+  setTodosFromAPI,
   toggleTodo,
 } from '../../features/todos/todosSlice';
 import TodoInput from '../../components/TodoInputComponent';
 import AddButton from '../../components/AddButtonComponent';
 import { TodoListScreenProp } from '../../types/todo';
 import styles from './styles';
+import { useGetTodosQuery } from '../../features/api/todoApiRTKSlice';
 
 const TodoList = () => {
   const [text, setText] = useState('');
-
   const dispatch = useDispatch<AppDispatch>();
-  const todos = useSelector((state: RootState) => state.todos.list);
-  const loading = useSelector((state: RootState) => state.todos.loading);
-  const error = useSelector((state: RootState) => state.todos.error);
-
   const navigation = useNavigation<TodoListScreenProp>();
 
+  // Select state from Redux
+  const todos = useSelector((state: RootState) => state.todos.list);
+
+  // RTK Query hook
+  const {
+    data,              // latest fulfilled server response
+    // currentData,       // most recent cache state (could be different during refetch) 
+    isLoading,
+    isError,
+    // error,
+    isSuccess,
+    // isFetching
+   } = useGetTodosQuery();
+
   useEffect(() => {
-    dispatch(fetchTodos());
-  }, [dispatch]);
+  if (isSuccess && data) {
+    const transformedData = data.map(todo => ({
+      id: todo.id.toString(),
+      title: todo.title,
+      completed: todo.completed,
+    }));
+
+    dispatch(setTodosFromAPI(transformedData));
+  }
+}, [isSuccess, data, dispatch]);
+
 
   const handleAdd = () => {
     if (text.trim()) {
@@ -46,7 +65,6 @@ const TodoList = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title} testID="todo-title">Todo List</Text>
-
       <View style={styles.inputRow}>
         <TodoInput
           value={text}
@@ -56,14 +74,16 @@ const TodoList = () => {
         <AddButton onPress={handleAdd} />
       </View>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#007AFF" testID="loading-indicator" />
-      ) : error ? (
-        <Text style={styles.errorText} testID="error-message">{error}</Text>
+      {isLoading ? (
+        <ActivityIndicator size="large" color="#007AFF" testID="ActivityIndicator"/>
+      ) : isError ? (
+        <Text style={styles.errorText} testID="error-message">
+         something went wrong
+        </Text>
       ) : (
         <FlatList
           data={todos}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
             <View style={styles.todoRow}>
               <View style={styles.todoTextContainer}>
@@ -72,10 +92,8 @@ const TodoList = () => {
                   style={[
                     styles.todoText,
                     item.completed && styles.completedText,
-                  ]}
-                  testID={`todo-text-${item.id}`}
-                >
-                  {item.text}
+                  ]}>
+                  {item.title}
                 </Text>
               </View>
 
