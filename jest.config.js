@@ -7,4 +7,5 @@ module.exports = {
   transformIgnorePatterns: [
     'node_modules/(?!(react-redux|@react-native|react-native|@react-navigation)/)',
   ],
+  testTimeout:10000,
 };

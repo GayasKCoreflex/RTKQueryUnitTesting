@@ -38,15 +38,27 @@ const renderWithProviders = (ui: React.ReactElement) => {
 // Start of the test suite.
 describe('TodoList with MSW', () => {
 
-  // Start MSW server before running any tests
-  beforeAll(() => server.listen());
+  //  Runs once before all tests in the suite.
+  //   - Enables fake timers to control and cleanup timers in components (like setTimeout).
+  //   - Starts the MSW server to intercept API requests.
+  beforeAll(() => {
+    jest.useFakeTimers();// Mocking timers (setTimeout, setInterval, etc.)
+    server.listen();
+  });
 
-  // Reset all request handlers after each test to avoid test contamination
-  afterEach(() => server.resetHandlers());
 
-  // Clean up MSW server after all tests complete
-  afterAll(() => server.close());
+  // Runs after each individual test.
+  afterEach(() => {
+    server.resetHandlers();
+  });
 
+  //  Runs once after all tests are done.
+  //    - Restores real timers so future tests (if any) are unaffected.
+  //    - Closes the MSW server.
+  afterAll(() => {
+    jest.useRealTimers();  // Restore actual timers
+    server.close();
+  });
 
   //Test 1: Successful rendering of todos from the API
   it('renders todos from API', async () => {
