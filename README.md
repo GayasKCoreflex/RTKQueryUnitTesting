@@ -1,70 +1,38 @@
-# MSW (Mock Service Worker) Setup in React Native for RTK Query
+# TodoList Test Suite with MSW, Redux, and React Navigation
 
-RTK Query works great with MSW for mocking APIs during development and testing. Here's how to integrate MSW in a React Native project.
+This project demonstrates a test setup for a React Native `TodoList` screen using:
+
+- **@testing-library/react-native**
+- **Redux Toolkit** (with slice + RTK Query)
+- **MSW** (Mock Service Worker) to intercept network requests
+- **React Navigation**
+- **Jest** for running the test suite
 
 ---
 
-## Step 1: Install Dependencies and Polyfills
+## Test File Structure
 
-MSW relies on web-standard classes (like `URL`, `TextEncoder`) that are not available in React Native by default.
+- **Component Under Test**: `TodoList.tsx`
+- **Store Slices**:
+  - `todosSlice.ts` (regular Redux slice)
+  - `todoApiRTKSlice.ts` (RTK Query slice)
+- **MSW Setup**: `server.ts` under `src/mocks/`
 
-Install the required packages:
+---
 
-npm install msw --save-dev
-npm install react-native-url-polyfill fast-text-encoding
+## Tests Overview
 
+### Test 1: Renders Todos from API
 
-## Step 2: At the root of your project (same level as App.js or index.js), create a file named msw.polyfills.js
+- Verifies the `ActivityIndicator` appears during loading
+- Waits for the mock todos (`Learn MSW`, `Write Tests`) to appear
+- Uses `waitFor` to ensure the async API call resolves
 
-// msw.polyfills.js
-import 'fast-text-encoding';
-import 'react-native-url-polyfill/auto';
+### Test 2: Displays Error on API Failure
 
+- Overrides the MSW handler to return a 500 error
+- Verifies the loading indicator shows first
+- Then checks that an error message (`something went wrong`) is displayed
+- Confirms that the original todos are **not** shown
 
-## Step 3:Modify your app entry point (index.js or wherever AppRegistry.registerComponent is used):
-/ index.js or App entry file
-
-import { AppRegistry } from 'react-native';
-import App from './src/App';
-import { name as appName } from './app.json';
-
-// Register app immediately
-AppRegistry.registerComponent(appName, () => App);
-
-// Enable MSW asynchronously in development
-if (__DEV__) {
-  import('./msw.polyfills').then(() => {
-    import('./src/mocks/server').then(({ server }) => {
-      server.listen();
-    });
-  });
-}
-
-
-## Step 4:Create Request Handlers
-Create src/mocks/handlers.js:
-
-/ src/mocks/handlers.js
-
-import { http, HttpResponse } from 'msw';
-
-export const handlers = [
-  http.get('https://api.example.com/user', () =>
-    HttpResponse.json({ id: 1, name: 'Jane Doe' })
-  ),
-
-  // Add more handlers here as needed
-];
-
-
-## Step 5:Create src/mocks/server.js:
-
-// src/mocks/server.js
-
-import { setupServer } from 'msw/native';
-import { handlers } from './handlers';
-
-export const server = setupServer(...handlers);
-
-
-
+---
