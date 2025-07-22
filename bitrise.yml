@@ -1,0 +1,127 @@
+format_version: '23'
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: react-native
+
+workflows:
+  dev:
+    description: Dev build
+    steps:
+      # Step 1: Clone the Git repo
+      - git-clone@8: {}
+
+      # Step 2: Install node modules
+      - npm@1:
+          title: npm install
+          inputs:
+            - workdir: "$WORKDIR"
+            - command: install
+
+      # Step 3: Run unit tests
+      - npm@1:
+          title: npm test
+          inputs:
+            - workdir: "$WORKDIR"
+            - command: test
+
+      # Step 4: Setup Android build tools
+      - install-missing-android-tools@3:
+          inputs:
+            - gradlew_path: "$PROJECT_LOCATION/gradlew"
+
+      # Step 5: Build Android APK for Dev flavor
+      - android-build@1:
+          inputs:
+            - project_location: "$PROJECT_LOCATION"
+            - module: "$MODULE"
+            - variant: devRelease  # must match gradle flavor+buildType
+            - build_type: apk
+
+      # Step 6: Upload APK to Bitrise
+      - deploy-to-bitrise-io@2: {}
+
+  uat:
+    description: UAT build
+    steps:
+      - git-clone@8: {}
+
+      - npm@1:
+          title: npm install
+          inputs:
+            - workdir: "$WORKDIR"
+            - command: install
+
+      - npm@1:
+          title: npm test
+          inputs:
+            - workdir: "$WORKDIR"
+            - command: test
+
+      - install-missing-android-tools@3:
+          inputs:
+            - gradlew_path: "$PROJECT_LOCATION/gradlew"
+
+      - android-build@1:
+          inputs:
+            - project_location: "$PROJECT_LOCATION"
+            - module: "$MODULE"
+            - variant: uatRelease  # must match gradle flavor+buildType
+            - build_type: apk
+
+      - deploy-to-bitrise-io@2: {}
+
+  prod:
+    description: Production build
+    steps:
+      - git-clone@8: {}
+
+      - npm@1:
+          title: npm install
+          inputs:
+            - workdir: "$WORKDIR"
+            - command: install
+
+      - npm@1:
+          title: npm test
+          inputs:
+            - workdir: "$WORKDIR"
+            - command: test
+
+      - install-missing-android-tools@3:
+          inputs:
+            - gradlew_path: "$PROJECT_LOCATION/gradlew"
+
+      - android-build@1:
+          inputs:
+            - project_location: "$PROJECT_LOCATION"
+            - module: "$MODULE"
+            - variant: prodRelease  # must match gradle flavor+buildType
+            - build_type: apk
+
+      - deploy-to-bitrise-io@2: {}
+
+meta:
+  bitrise.io:
+    stack: osx-xcode-16.4.x  # macOS stack with latest Xcode
+    machine_type_id: g2.mac.large  # Performance machine type
+
+app:
+  envs:
+    # Path to the working directory (usually project root)
+    - WORKDIR: "."      
+    # Path to Android project directory
+    - PROJECT_LOCATION: android
+
+    # Android module to build
+    - MODULE: app
+      
+    # Default Android build variant (optional, overridden in step)
+    - VARIANT: Debug
+
+    # Path to iOS workspace file
+    - BITRISE_PROJECT_PATH: ios/reactreduxtoolkit.xcworkspace
+      
+    # Scheme to use for iOS builds (should match Xcode scheme)
+    - BITRISE_SCHEME: reactreduxtoolkit
+      
+    # iOS distribution method (adhoc / app-store / development)
+    - BITRISE_DISTRIBUTION_METHOD: ad-hoc       
