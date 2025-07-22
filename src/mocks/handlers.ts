@@ -3,15 +3,15 @@ import { http, HttpResponse } from 'msw';
 // Defining request handlers
 export const handlers = [
 
-  // Handle GET requests to the todos endpoint
+  // http.get(...)	Intercepts GET requests to the specified endpoint
   http.get('https://jsonplaceholder.typicode.com/todos', ({ request }) => {
     console.log('MSW intercepted GET /todos');
 
-     // Parse the incoming request URL to extract query parameters
+     // URL(request.url)	Parses the incoming request’s full URL
     const url = new URL(request.url);
 
-    // Extract the `_limit` query parameter (e.g., ?_limit=4)
-    const limit = url.searchParams.get('_limit=4');
+    // url.searchParams.get	Extracts query parameters (_limit)
+    const limit = url.searchParams.get('_limit');
 
     // Define mock todo data to return
     const allTodos = [
@@ -25,7 +25,16 @@ export const handlers = [
     // Otherwise return the full list
     const limitedTodos = limit ? allTodos.slice(0, Number(limit)) : allTodos;
 
-    // Return the mock response as JSON with a 200 OK status
+    // HttpResponse.json()	Sends back a mock JSON response as JSON with a 200 OK status
     return HttpResponse.json(limitedTodos);
   }),
 ];
+
+// Note:  when using MSW, it never calls the actual API during tests (or development, if MSW is enabled).
+
+// MSW intercepts the request.
+// Checks if there’s a matching handler.
+// If matched (like your http.get(...)), it returns the mocked response (like allTodos).
+// Sets isSuccess = true in RTK Query
+// Your UI renders the mock todos
+// To app or test, it looks like a real response — but it's 100% simulated.
