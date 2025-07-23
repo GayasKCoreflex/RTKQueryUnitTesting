@@ -5,42 +5,54 @@ project_type: react-native
 workflows:
   dev:
     description: Dev build
+    envs:
+      - ENVFILE: ".env.dev"
     steps:
-      # Step 1: Clone the Git repo
+      # Clone your Git repository
       - git-clone@8: {}
 
-      # Step 2: Install node modules
+      # Install dependencies
       - npm@1:
           title: npm install
           inputs:
             - workdir: "$WORKDIR"
             - command: install
 
-      # Step 3: Run unit tests
+      # Run tests
       - npm@1:
           title: npm test
           inputs:
             - workdir: "$WORKDIR"
             - command: test
 
-      # Step 4: Setup Android build tools
+      # Set the .env.dev file for React Native Config
+      - script@1:
+          title: Set .env.dev file
+          inputs:
+            - content: |
+                echo "Using $ENVFILE for Dev"
+                echo "ENVFILE=$ENVFILE" > .envfile
+
+      # Install missing Android tools like SDKs
       - install-missing-android-tools@3:
           inputs:
             - gradlew_path: "$PROJECT_LOCATION/gradlew"
 
-      # Step 5: Build Android APK for Dev flavor
+      # Build the Android APK for the dev flavor
       - android-build@1:
           inputs:
             - project_location: "$PROJECT_LOCATION"
             - module: "$MODULE"
-            - variant: devRelease  # must match gradle flavor+buildType
+            - variant: devRelease
             - build_type: apk
 
-      # Step 6: Upload APK to Bitrise
+      # Upload artifacts to Bitrise
       - deploy-to-bitrise-io@2: {}
 
   uat:
     description: UAT build
+    envs:
+      - ENVFILE: ".env.uat"
     steps:
       - git-clone@8: {}
 
@@ -56,6 +68,13 @@ workflows:
             - workdir: "$WORKDIR"
             - command: test
 
+      - script@1:
+          title: Set .env.uat file
+          inputs:
+            - content: |
+                echo "Using $ENVFILE for UAT"
+                echo "ENVFILE=$ENVFILE" > .envfile
+
       - install-missing-android-tools@3:
           inputs:
             - gradlew_path: "$PROJECT_LOCATION/gradlew"
@@ -64,13 +83,15 @@ workflows:
           inputs:
             - project_location: "$PROJECT_LOCATION"
             - module: "$MODULE"
-            - variant: uatRelease  # must match gradle flavor+buildType
+            - variant: uatRelease
             - build_type: apk
 
       - deploy-to-bitrise-io@2: {}
 
   prod:
     description: Production build
+    envs:
+      - ENVFILE: ".env.prod"
     steps:
       - git-clone@8: {}
 
@@ -86,6 +107,13 @@ workflows:
             - workdir: "$WORKDIR"
             - command: test
 
+      - script@1:
+          title: Set .env.prod file
+          inputs:
+            - content: |
+                echo "Using $ENVFILE for Prod"
+                echo "ENVFILE=$ENVFILE" > .envfile
+
       - install-missing-android-tools@3:
           inputs:
             - gradlew_path: "$PROJECT_LOCATION/gradlew"
@@ -94,34 +122,24 @@ workflows:
           inputs:
             - project_location: "$PROJECT_LOCATION"
             - module: "$MODULE"
-            - variant: prodRelease  # must match gradle flavor+buildType
+            - variant: prodRelease
             - build_type: apk
 
       - deploy-to-bitrise-io@2: {}
 
 meta:
   bitrise.io:
-    stack: osx-xcode-16.4.x  # macOS stack with latest Xcode
-    machine_type_id: g2.mac.large  # Performance machine type
+    # Define macOS stack
+    stack: osx-xcode-16.4.x
+    # Machine type (upgrade if needed)
+    machine_type_id: g2.mac.large
 
 app:
   envs:
-    # Path to the working directory (usually project root)
-    - WORKDIR: "."      
-    # Path to Android project directory
-    - PROJECT_LOCATION: android
-
-    # Android module to build
-    - MODULE: app
-      
-    # Default Android build variant (optional, overridden in step)
+    - WORKDIR: "."                         # React Native root directory
+    - PROJECT_LOCATION: android            # Android directory
+    - MODULE: app                          # Android app module
     - VARIANT: Debug
-
-    # Path to iOS workspace file
-    - BITRISE_PROJECT_PATH: ios/reactreduxtoolkit.xcworkspace
-      
-    # Scheme to use for iOS builds (should match Xcode scheme)
-    - BITRISE_SCHEME: reactreduxtoolkit
-      
-    # iOS distribution method (adhoc / app-store / development)
-    - BITRISE_DISTRIBUTION_METHOD: ad-hoc       
+    - BITRISE_PROJECT_PATH: ios/reactreduxtoolkit.xcworkspace # Xcode workspace
+    - BITRISE_SCHEME: reactreduxtoolkit    # iOS scheme
+    - BITRISE_DISTRIBUTION_METHOD: ad-hoc  # iOS distribution method
