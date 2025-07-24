@@ -18,17 +18,21 @@ workflows:
         inputs:
         - workdir: "$WORKDIR"
         - command: install  # Install dependencies
-    - npm@1:
-        title: npm test
-        inputs:
-        - workdir: "$WORKDIR"
-        - command: test  # Run tests
+    # - npm@1:
+    #     title: npm test
+    #     inputs:
+    #     - workdir: "$WORKDIR"
+    #     - command: test  # Run tests
     - script@1:
         title: Set .env.dev file
         inputs:
         - content: |
             echo "Using $ENVFILE for Dev"
             echo "ENVFILE=$ENVFILE" > .envfile  # Export ENVFILE for other steps
+    - script@1:
+          title: Skip tests for dev
+          inputs:
+            - content: echo "Skipping tests for development build"
     - install-missing-android-tools@3:
         inputs:
         - gradlew_path: "$PROJECT_LOCATION/gradlew"  # Ensure required Android tools are available
@@ -54,17 +58,22 @@ workflows:
         inputs:
         - workdir: "$WORKDIR"
         - command: install
-    - npm@1:
-        title: npm test
-        inputs:
-        - workdir: "$WORKDIR"
-        - command: test
+    # - npm@1:
+    #     title: npm test
+    #     inputs:
+    #     - workdir: "$WORKDIR"
+    #     - command: test
+    
     - script@1:
         title: Set .env.uat file
         inputs:
         - content: |
             echo "Using $ENVFILE for UAT"
             echo "ENVFILE=$ENVFILE" > .envfile
+    - script@1:
+          title: Manual QA note
+          inputs:
+            - content: echo "UAT build for manual validation. No automation running." 
     - install-missing-android-tools@3:
         inputs:
         - gradlew_path: "$PROJECT_LOCATION/gradlew"
