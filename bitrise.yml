@@ -1,145 +1,143 @@
+---
 format_version: '23'
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: react-native
 
 workflows:
+  # -------------------------
+  # Development Workflow
+  # -------------------------
   dev:
     description: Dev build
     envs:
-      - ENVFILE: ".env.dev"
+    - ENVFILE: ".env.dev"  # Environment file for dev build
     steps:
-      # Clone your Git repository
-      - git-clone@8: {}
+    - git-clone@8: {}  # Clone repository
+    - npm@1:
+        title: npm install
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: install  # Install dependencies
+    - npm@1:
+        title: npm test
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: test  # Run tests
+    - script@1:
+        title: Set .env.dev file
+        inputs:
+        - content: |
+            echo "Using $ENVFILE for Dev"
+            echo "ENVFILE=$ENVFILE" > .envfile  # Export ENVFILE for other steps
+    - install-missing-android-tools@3:
+        inputs:
+        - gradlew_path: "$PROJECT_LOCATION/gradlew"  # Ensure required Android tools are available
+    - android-build@1:
+        inputs:
+        - project_location: "$PROJECT_LOCATION"
+        - module: "$MODULE"
+        - variant: devRelease  # Build APK with dev flavor
+        - build_type: apk
+    - deploy-to-bitrise-io@2: {}  # Upload artifact to Bitrise
+    triggers:
+      push:
+      - branch: "*"  # Trigger on all branches
 
-      # Install dependencies
-      - npm@1:
-          title: npm install
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: install
-
-      # Run tests
-      - npm@1:
-          title: npm test
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: test
-
-      # Set the .env.dev file for React Native Config
-      - script@1:
-          title: Set .env.dev file
-          inputs:
-            - content: |
-                echo "Using $ENVFILE for Dev"
-                echo "ENVFILE=$ENVFILE" > .envfile
-
-      # Install missing Android tools like SDKs
-      - install-missing-android-tools@3:
-          inputs:
-            - gradlew_path: "$PROJECT_LOCATION/gradlew"
-
-      # Build the Android APK for the dev flavor
-      - android-build@1:
-          inputs:
-            - project_location: "$PROJECT_LOCATION"
-            - module: "$MODULE"
-            - variant: devRelease
-            - build_type: apk
-
-      # Upload artifacts to Bitrise
-      - deploy-to-bitrise-io@2: {}
-
+  # -------------------------
+  # UAT Workflow
+  # -------------------------
   uat:
     description: UAT build
     envs:
-      - ENVFILE: ".env.uat"
+    - ENVFILE: ".env.uat"  # Environment file for UAT
     steps:
-      - git-clone@8: {}
+    - git-clone@8: {}
+    - npm@1:
+        title: npm install
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: install
+    - npm@1:
+        title: npm test
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: test
+    - script@1:
+        title: Set .env.uat file
+        inputs:
+        - content: |
+            echo "Using $ENVFILE for UAT"
+            echo "ENVFILE=$ENVFILE" > .envfile
+    - install-missing-android-tools@3:
+        inputs:
+        - gradlew_path: "$PROJECT_LOCATION/gradlew"
+    - android-build@1:
+        inputs:
+        - project_location: "$PROJECT_LOCATION"
+        - module: "$MODULE"
+        - variant: uatRelease  # Build APK with UAT flavor
+        - build_type: apk
+    - deploy-to-bitrise-io@2: {}
+    triggers:
+      push:
+      - branch: "*"  # Can be scoped to a UAT branch in production use
 
-      - npm@1:
-          title: npm install
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: install
-
-      - npm@1:
-          title: npm test
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: test
-
-      - script@1:
-          title: Set .env.uat file
-          inputs:
-            - content: |
-                echo "Using $ENVFILE for UAT"
-                echo "ENVFILE=$ENVFILE" > .envfile
-
-      - install-missing-android-tools@3:
-          inputs:
-            - gradlew_path: "$PROJECT_LOCATION/gradlew"
-
-      - android-build@1:
-          inputs:
-            - project_location: "$PROJECT_LOCATION"
-            - module: "$MODULE"
-            - variant: uatRelease
-            - build_type: apk
-
-      - deploy-to-bitrise-io@2: {}
-
+  # -------------------------
+  # Production Workflow
+  # -------------------------
   prod:
     description: Production build
     envs:
-      - ENVFILE: ".env.prod"
+    - ENVFILE: ".env.prod"  # Environment file for production
     steps:
-      - git-clone@8: {}
+    - git-clone@8: {}
+    - npm@1:
+        title: npm install
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: install
+    - npm@1:
+        title: npm test
+        inputs:
+        - workdir: "$WORKDIR"
+        - command: test
+    - script@1:
+        title: Set .env.prod file
+        inputs:
+        - content: |
+            echo "Using $ENVFILE for Prod"
+            echo "ENVFILE=$ENVFILE" > .envfile
+    - install-missing-android-tools@3:
+        inputs:
+        - gradlew_path: "$PROJECT_LOCATION/gradlew"
+    - android-build@1:
+        inputs:
+        - project_location: "$PROJECT_LOCATION"
+        - module: "$MODULE"
+        - variant: prodRelease  # Build production-ready APK
+        - build_type: apk
+    - deploy-to-bitrise-io@2: {}
+    triggers:
+      push:
+      - branch: "*"  # Ideally only allow production branches here
 
-      - npm@1:
-          title: npm install
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: install
-
-      - npm@1:
-          title: npm test
-          inputs:
-            - workdir: "$WORKDIR"
-            - command: test
-
-      - script@1:
-          title: Set .env.prod file
-          inputs:
-            - content: |
-                echo "Using $ENVFILE for Prod"
-                echo "ENVFILE=$ENVFILE" > .envfile
-
-      - install-missing-android-tools@3:
-          inputs:
-            - gradlew_path: "$PROJECT_LOCATION/gradlew"
-
-      - android-build@1:
-          inputs:
-            - project_location: "$PROJECT_LOCATION"
-            - module: "$MODULE"
-            - variant: prodRelease
-            - build_type: apk
-
-      - deploy-to-bitrise-io@2: {}
-
+# -------------------------
+# Bitrise Machine Configuration
+# -------------------------
 meta:
   bitrise.io:
-    # Define macOS stack
-    stack: osx-xcode-16.4.x
-    # Machine type (upgrade if needed)
-    machine_type_id: g2.mac.large
+    stack: osx-xcode-16.4.x  # macOS stack for iOS build compatibility
+    machine_type_id: g2.mac.large  # More powerful machine for faster builds
 
+# -------------------------
+# Global Environment Variables
+# -------------------------
 app:
   envs:
-    - WORKDIR: "."                         # React Native root directory
-    - PROJECT_LOCATION: android            # Android directory
-    - MODULE: app                          # Android app module
-    - VARIANT: Debug
-    - BITRISE_PROJECT_PATH: ios/reactreduxtoolkit.xcworkspace # Xcode workspace
-    - BITRISE_SCHEME: reactreduxtoolkit    # iOS scheme
-    - BITRISE_DISTRIBUTION_METHOD: ad-hoc  # iOS distribution method
+  - WORKDIR: "."  # Working directory
+  - PROJECT_LOCATION: android  # Android project root
+  - MODULE: app  # Android module name
+  - VARIANT: Debug
+  - BITRISE_PROJECT_PATH: ios/reactreduxtoolkit.xcworkspace  # iOS workspace path
+  - BITRISE_SCHEME: reactreduxtoolkit  # iOS scheme name
+  - BITRISE_DISTRIBUTION_METHOD: ad-hoc  # iOS distribution method (can be app-store, development, etc.)
