@@ -39,9 +39,6 @@ workflows:
         - variant: devRelease  # Build APK with dev flavor
         - build_type: apk
     - deploy-to-bitrise-io@2: {}  # Upload artifact to Bitrise
-    triggers:
-      push:
-      - branch: "*"  # Trigger on all branches
 
   # -------------------------
   # UAT Workflow
@@ -78,9 +75,6 @@ workflows:
         - variant: uatRelease  # Build APK with UAT flavor
         - build_type: apk
     - deploy-to-bitrise-io@2: {}
-    triggers:
-      push:
-      - branch: "*"  # Can be scoped to a UAT branch in production use
 
   # -------------------------
   # Production Workflow
@@ -117,9 +111,6 @@ workflows:
         - variant: prodRelease  # Build production-ready APK
         - build_type: apk
     - deploy-to-bitrise-io@2: {}
-    triggers:
-      push:
-      - branch: "*"  # Ideally only allow production branches here
 
 # -------------------------
 # Bitrise Machine Configuration
