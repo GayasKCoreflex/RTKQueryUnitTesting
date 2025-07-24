@@ -1,7 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
-apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle"
+apply from: project(':react-native-config').projectDir.getPath() + "/dotenv.gradle" // Loads .env files via react-native-config
 
 /**
  * This is the configuration block to customize your React Native Android app.
@@ -95,7 +95,7 @@ android {
         }
     }
 
-    flavorDimensions "env" // Define a dimension for flavors
+    flavorDimensions "env" // Define a dimension for flavors. Used to differentiate environments (dev, uat, prod)
 
     // Link flavors to .env files
     project.ext.envConfigFiles = [
@@ -104,11 +104,12 @@ android {
         prod: ".env.prod"
     ]
 
+    // Define product flavors
     productFlavors {
             dev {
-                dimension "env"
-                applicationIdSuffix ".dev"
-                resValue "string", "app_name", "RedOneDev"
+                dimension "env" // Belongs to "env" dimension
+                applicationIdSuffix ".dev" // App ID becomes com.reactreduxtoolkit.dev
+                resValue "string", "app_name", "RedOneDev" // Injects app_name as RedOneDev
             }
             uat {
                 dimension "env"
@@ -138,6 +139,7 @@ android {
             }
         }
 
+        // Customize APK output file name based on flavor + buildType
         applicationVariants.all { variant ->
             variant.outputs.all { output ->
                 def flavor = variant.flavorName
