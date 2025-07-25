@@ -11,6 +11,7 @@ workflows:
     description: Dev build
     envs:
     - ENVFILE: ".env.dev"  # Environment file for dev build
+    - SALESFORCE_URL: https://ccep--int.sandbox.my.salesforce.com
     steps:
     - git-clone@8: {}  # Clone repository
     - npm@1:
@@ -51,6 +52,7 @@ workflows:
     description: UAT build
     envs:
     - ENVFILE: ".env.uat"  # Environment file for UAT
+    - SALESFORCE_URL: https://test.salesforce.com
     steps:
     - git-clone@8: {}
     - npm@1:
